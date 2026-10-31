@@ -1,4 +1,4 @@
-package com.example.clduocjpcucimuc
+package cl.duoc.jpcu.cimuc
 
 import org.junit.Test
 

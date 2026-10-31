@@ -1,6 +1,4 @@
-package com.example.clduocjpcucimuc.ui.theme
-
-import android.app.Activity
+package cl.duoc.jpcu.cimuc.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

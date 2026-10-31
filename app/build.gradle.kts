@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.clduocjpcucimuc"
+    namespace = "cl.duoc.jpcu.cimuc"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.clduocjpcucimuc"
+        applicationId = "cl.duoc.jpcu.cimuc"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

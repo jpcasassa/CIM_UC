@@ -1,5 +1,4 @@
-package com.example.clduocjpcucimuc.ui.theme
-
+package cl.duoc.jpcu.cimuc.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)

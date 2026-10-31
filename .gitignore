@@ -1,19 +1,15 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/
 .DS_Store
-/build
-/captures
+/build/
+/captures/
 .externalNativeBuild
 .cxx
-local.properties
-**/build/
-*.log
-# Android Studio - excluir toda la configuración local
-.idea/
+
+# Android build outputs
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties

@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo Interactivo MVP - CIM UC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1b4332;
+            --primary-dark: #081c15;
+            --primary-light: #2d6a4f;
+            --accent-wood: #d4a373;
+            --accent-wood-dark: #b07d4f;
+            --accent-light: #e8f5e9;
+            --bg-slate: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        /* Phone Frame Container */
+        .phone-frame {
+            width: 380px;
+            height: 780px;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 12px #334155;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Expanded Mode switch for desktop viewing */
+        .phone-frame.fullscreen-mode {
+            width: 100%;
+            max-width: 960px;
+            height: 92vh;
+            border-radius: 20px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Custom Scrollbars */
+        .screen-container::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .screen-container, .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Header Bar Styling */
+        .phone-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 12px 16px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 20;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        .app-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 38px;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            display: none;
+            padding: 16px;
+            animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Component Styling */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(27, 67, 50, 0.25);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline:active {
+            background: rgba(27, 67, 50, 0.05);
+        }
+
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .chip-filter {
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip-filter.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(27, 67, 50, 0.2);
+        }
+
+        .card-item {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-item:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.07);
+        }
+
+        /* Toast Popup */
+        #toast {
+            position: absolute;
+            bottom: 64px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 50;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: max-content;
+            max-width: 90%;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top External Control Bar -->
+    <div class="mb-3 flex items-center justify-between w-full max-w-[380px] sm:max-w-[960px] text-white text-xs px-2">
+        <div class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-medium text-slate-300">CIM UC Prototype v3.0 (Académico)</span>
+        </div>
+        <button onclick="toggleFrameSize()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2 transition">
+            <i class="fa-solid fa-expand" id="expand-icon"></i>
+            <span id="expand-text">Pantalla Completa</span>
+        </button>
+    </div>
+
+    <!-- Phone Frame Container -->
+    <div class="phone-frame" id="phone-frame">
+        
+        <!-- Header -->
+        <div class="phone-header">
+            <div class="status-bar">
+                <span id="clock-time">12:00</span>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-wifi text-[10px]"></i>
+                    <i class="fa-solid fa-signal text-[10px]"></i>
+                    <i class="fa-solid fa-battery-three-quarters text-[11px]"></i>
+                </div>
+            </div>
+            
+            <div class="app-bar">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <button id="back-btn" class="hidden text-white/80 hover:text-white p-1 transition" onclick="goBack()">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                    </button>
+                    <div class="truncate">
+                        <h1 class="app-title font-bold text-sm tracking-tight leading-tight text-white" id="header-title">P-01: Inicio</h1>
+                        <p class="text-[9px] text-emerald-200/80 font-normal truncate" id="header-subtitle">Centro UC de Innovación en Madera</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="navigateTo('screen-favoritos', 'P-08: Guardados', 'nav-favoritos')" class="relative text-white/80 hover:text-white p-1.5 transition">
+                        <i class="fa-regular fa-bookmark text-sm"></i>
+                        <span id="fav-count" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
+                    </button>
+                    <span class="text-[9px] bg-emerald-800/80 border border-emerald-500/30 text-emerald-100 px-2 py-0.5 rounded font-mono font-semibold">MVP</span>
+                </div>
+            </div>
+
+            <!-- User Role Switcher -->
+            <div class="bg-black/20 rounded-lg p-1 flex text-[10px] items-center justify-between mt-1">
+                <span class="text-emerald-200/90 font-medium pl-1"><i class="fa-solid fa-user-gear mr-1"></i>Perfil:</span>
+                <div class="flex gap-1">
+                    <button id="role-btn-empresa" onclick="setUserRole('empresa')" class="px-2 py-0.5 rounded font-semibold bg-emerald-600 text-white transition">Empresa / Industria</button>
+                    <button id="role-btn-investigador" onclick="setUserRole('investigador')" class="px-2 py-0.5 rounded font-semibold text-emerald-100 hover:text-white transition">Investigador / UC</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Screen Container -->
+        <div class="screen-container flex-1 bg-slate-50 overflow-y-auto relative">
+
+            <!-- P-01: INICIO SCREEN -->
+            <div id="screen-inicio" class="screen active">
+                
+                <!-- Hero Banner -->
+                <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white rounded-2xl p-4 mb-3 shadow-md relative overflow-hidden">
+                    <div class="absolute -right-3 -bottom-3 opacity-10 text-white text-8xl">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="badge-tag bg-amber-400/20 text-amber-300 border border-amber-400/30">Innovación Forestal</span>
+                        <span id="hero-role-badge" class="text-[9px] font-mono text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Vista Empresa</span>
+                    </div>
+                    <h2 class="text-base font-bold leading-tight mb-1.5">Centro UC de Innovación en Madera</h2>
+                    <p class="text-xs text-emerald-100/80 mb-3 leading-relaxed" id="hero-desc">
+                        Soluciones en ingeniería, sustentabilidad y manufactura industrializada para el desarrollo de la construcción en madera.
+                    </p>
+                    <div class="flex gap-2">
+                        <button class="btn-primary flex-1 text-xs py-2" onclick="navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar')">
+                            <i class="fa-solid fa-magnifying-glass"></i> Explorar Catálogo
+                        </button>
+                        <button class="bg-white/10 hover:bg-white/20 text-white rounded-xl px-3 text-xs border border-white/20 transition" onclick="navigateTo('screen-actividades', 'P-05: Actividades', 'nav-actividades')">
+                            <i class="fa-solid fa-handshake text-amber-300"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Context Notice for User Role -->
+                <div id="role-callout" class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 mb-3 text-[11px] text-amber-900 flex items-start gap-2 shadow-2xs">
+                    <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+                    <div>
+                        <span class="font-bold block text-amber-950" id="role-callout-title">Modo Empresa / Industria</span>
+                        <span class="text-amber-800/90 text-[10px]" id="role-callout-desc">Priorizando capacidades de laboratorio, ensayos normados y transferencia tecnológica.</span>
+                    </div>
+                </div>
+
+                <!-- Stats Bar -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="bg-white p-2 rounded-xl border border-slate-200/80 text-center shadow-2xs">
+                        <span class="block text-sm font-extrabold text-emerald-800">45+</span>
+                        <span class="text-[9px] text-slate-500 font-medium">Proyectos I+D</span>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-200/80 text-center shadow-2xs">
+                        <span class="block text-sm font-extrabold text-emerald-800">120+</span>
+                        <span class="text-[9px] text-slate-500 font-medium">Publicaciones</span>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-200/80 text-center shadow-2xs">
+                        <span class="block text-sm font-extrabold text-emerald-800">15</span>
+                        <span class="text-[9px] text-slate-500 font-medium">Capacidades</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Recommendations Section -->
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Áreas Temáticas</h3>
+                    <button class="text-emerald-700 text-xs font-semibold hover:underline" onclick="navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar')">Ver todo</button>
+                </div>
+
+                <!-- Area Grid -->
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-2xs flex items-center gap-2.5" onclick="filterByAreaAndNavigate('area-1')">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-bold shrink-0">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">Estructuras</h4>
+                            <p class="text-[9px] text-slate-500 truncate">CLT, Glulam y Sísmica</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-2xs flex items-center gap-2.5" onclick="filterByAreaAndNavigate('area-2')">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold shrink-0">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">Sustentabilidad</h4>
+                            <p class="text-[9px] text-slate-500 truncate">Eficiencia & Biomasa</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-2xs flex items-center gap-2.5" onclick="filterByAreaAndNavigate('area-3')">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-bold shrink-0">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">I+D Materiales</h4>
+                            <p class="text-[9px] text-slate-500 truncate">Resinas & Adhesivos</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-2xs flex items-center gap-2.5" onclick="filterByAreaAndNavigate('area-4')">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center text-xs font-bold shrink-0">
+                            <i class="fa-solid fa-microscope"></i>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">Ensayos Labs</h4>
+                            <p class="text-[9px] text-slate-500 truncate">Pruebas Normalizadas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spotlight Card -->
+                <div class="bg-slate-900 text-white rounded-xl p-3 flex items-center justify-between border border-slate-800">
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest">Oportunidad Destacada</span>
+                        <h4 class="text-xs font-bold" id="spotlight-title">Servicios de Certificación CLT</h4>
+                        <p class="text-[10px] text-slate-400" id="spotlight-sub">Cámara climática y compresión escala real</p>
+                    </div>
+                    <button class="btn-primary text-xs py-1.5 px-3 whitespace-nowrap" onclick="navigateTo('screen-actividades', 'P-05: Actividades', 'nav-actividades')">
+                        Ver
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- P-02: EXPLORAR SCREEN -->
+            <div id="screen-explorar" class="screen">
+                
+                <!-- Search Box (RA-02) -->
+                <div class="relative mb-2">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-input" class="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent shadow-2xs" placeholder="Buscar por título, integrante, área o clave..." onkeyup="handleSearch(this.value)">
+                    <button id="clear-search" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs hover:text-slate-600" onclick="clearSearch()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Row 1: Entity / Type Filters (RA-03) -->
+                <div class="mb-2">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipo de Contenido:</span>
+                    <div class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar" id="type-chips">
+                        <span class="chip-filter active" onclick="setTypeFilter(this, 'todos')">Todos</span>
+                        <span class="chip-filter" onclick="setTypeFilter(this, 'proyecto')">Proyectos</span>
+                        <span class="chip-filter" onclick="setTypeFilter(this, 'capacidad')">Capacidades I+D</span>
+                        <span class="chip-filter" onclick="setTypeFilter(this, 'publicacion')">Publicaciones</span>
+                        <span class="chip-filter" onclick="setTypeFilter(this, 'actividad')">Actividades</span>
+                    </div>
+                </div>
+
+                <!-- Filter Row 2: Area & Year Filters -->
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Área Temática:</span>
+                        <select id="area-select" onchange="handleAreaFilter(this.value)" class="w-full text-[11px] p-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+                            <option value="todas">Todas las Áreas</option>
+                            <option value="area-1">Estructuras y Sísmica</option>
+                            <option value="area-2">Sustentabilidad y Aislamiento</option>
+                            <option value="area-3">I+D Materiales & Resinas</option>
+                            <option value="area-4">Ensayos & Laboratorios</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Año:</span>
+                        <select id="year-select" onchange="handleYearFilter(this.value)" class="w-full text-[11px] p-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+                            <option value="todos">Todos los Años</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Items Counter -->
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <span class="text-[11px] text-slate-500 font-medium" id="results-count">Mostrando resultados</span>
+                    <button class="text-[10px] text-emerald-700 font-semibold hover:underline" onclick="resetFilters()">Restablecer Filtros</button>
+                </div>
+
+                <!-- Dynamic Cards List Container -->
+                <div id="cards-list">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden text-center py-8 px-4">
+                    <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-2 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-base"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-700 mb-1">Sin resultados encontrados</h4>
+                    <p class="text-[10px] text-slate-500 mb-3">Intenta cambiar el término de búsqueda o ajusta los filtros seleccionados.</p>
+                    <button class="btn-outline text-xs mx-auto" onclick="resetFilters()">Limpiar Filtros</button>
+                </div>
+            </div>
+
+            <!-- P-03: DETALLE DE PROYECTO SCREEN -->
+            <div id="screen-detalle" class="screen">
+                <div id="detail-content">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- P-04: CONTENIDOS RELACIONADOS SCREEN -->
+            <div id="screen-relacionados" class="screen">
+                <div id="related-content">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- P-05: ACTIVIDADES Y OPORTUNIDADES SCREEN -->
+            <div id="screen-actividades" class="screen">
+                
+                <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white p-3.5 rounded-xl mb-3 relative overflow-hidden">
+                    <span class="badge-tag bg-amber-400 text-slate-900 mb-1.5">Actividades & Transferencia</span>
+                    <h3 class="text-xs font-bold mb-1">Oportunidades de Colaboración CIM UC</h3>
+                    <p class="text-[11px] text-emerald-100/80">
+                        Eventos, programas de formación y proyectos conjuntos entre academia e industria forestal.
+                    </p>
+                </div>
+
+                <!-- Filter Chips for Activities -->
+                <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1 no-scrollbar">
+                    <span class="chip-filter active" onclick="filterActivities(this, 'todas')">Todas</span>
+                    <span class="chip-filter" onclick="filterActivities(this, 'evento')">Eventos</span>
+                    <span class="chip-filter" onclick="filterActivities(this, 'formacion')">Formación</span>
+                    <span class="chip-filter" onclick="filterActivities(this, 'oportunidad')">Colaboración</span>
+                </div>
+
+                <div id="activities-list" class="space-y-2 mb-4">
+                    <!-- Dynamic Activity Items populated by JS -->
+                </div>
+
+                <button class="btn-primary w-full text-xs" onclick="openContactForm('General', 'Solicitud General de Colaboración')">
+                    <i class="fa-solid fa-paper-plane"></i> Iniciar Solicitud de Contacto
+                </button>
+            </div>
+
+            <!-- P-06: FORMULARIO DE CONTACTO SIMULADO SCREEN -->
+            <div id="screen-formulario" class="screen">
+                
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Solicitud de Contacto</h3>
+                        <span class="text-[9px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">P-06</span>
+                    </div>
+                    
+                    <!-- Referral Info Box -->
+                    <div id="form-referral-box" class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 mb-3 text-[11px] text-emerald-900 flex items-start gap-2">
+                        <i class="fa-solid fa-link text-emerald-700 mt-0.5"></i>
+                        <div>
+                            <span class="block text-[10px] text-emerald-700 font-bold uppercase">Contenido Referido (id_contenido_referido):</span>
+                            <span id="form-referred-title" class="font-bold text-slate-800">Contacto General CIM UC</span>
+                        </div>
+                    </div>
+
+                    <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="form-referred-id" value="REF-GENERAL">
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nombre Completo *</label>
+                            <input type="text" id="form-name" placeholder="Ej. Dra. Carmen Gloria Rodríguez" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Correo Electrónico (Ficticio) *</label>
+                            <input type="email" id="form-email" placeholder="contacto@empresa-o-universidad.cl" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Tipo de Interés</label>
+                            <select id="form-topic" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white text-slate-800 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                                <option value="Colaboración I+D">Proyecto Conjunto de I+D</option>
+                                <option value="Ensayo de Laboratorio">Servicios y Ensayos de Laboratorio</option>
+                                <option value="Transferencia Tecnológica">Licenciamiento / Transferencia</option>
+                                <option value="Consulta Académica / Tesis">Consulta Académica o Tesis</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Mensaje / Detalle de Consulta *</label>
+                            <textarea id="form-message" rows="3" placeholder="Describe los requerimientos específicos o propuesta de vinculación..." required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full text-xs py-2.5 mt-2">
+                            <i class="fa-solid fa-paper-plane"></i> Registrar Solicitud Simulado
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- P-07: CONFIRMACIÓN SCREEN -->
+            <div id="screen-confirmacion" class="screen">
+                <div class="text-center py-4 px-2">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                    <span class="badge-tag bg-emerald-100 text-emerald-800 mb-1.5">Solicitud Registrada (P-07)</span>
+                    <h3 class="text-base font-bold text-slate-800 mb-1">¡Registro Completado Exitosamente!</h3>
+                    <p class="text-[11px] text-slate-500 mb-4 max-w-[280px] mx-auto leading-relaxed">
+                        Se ha creado una entidad <code class="font-mono bg-slate-200 text-slate-800 px-1 rounded">SolicitudContacto</code> en el modelo simulado.
+                    </p>
+
+                    <!-- Receipt Summary Box -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-3 text-left mb-4 text-xs space-y-2 shadow-2xs">
+                        <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-slate-400">ID Solicitud:</span>
+                            <span class="font-mono font-bold text-slate-800" id="receipt-id">#SOL-2026-8921</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-slate-400">Contacto:</span>
+                            <span class="font-semibold text-slate-800 truncate max-w-[150px]" id="receipt-name">Juan Pérez</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-slate-400">Correo Ficticio:</span>
+                            <span class="font-mono text-slate-600 truncate max-w-[150px]" id="receipt-email">juan@empresa.cl</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-slate-400">Fecha:</span>
+                            <span class="font-medium text-slate-700" id="receipt-date">28/09/2026</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Contenido Referido:</span>
+                            <span class="font-bold text-emerald-700 truncate max-w-[150px]" id="receipt-ref">PROJ-01</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="btn-outline flex-1 text-xs" onclick="navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar')">
+                            Seguir Explorando
+                        </button>
+                        <button class="btn-primary flex-1 text-xs" onclick="navigateTo('screen-inicio', 'P-01: Inicio', 'nav-inicio')">
+                            Inicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAVORITOS TAB SCREEN -->
+            <div id="screen-favoritos" class="screen">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Elementos Guardados</h3>
+                    <button class="text-red-600 text-[11px] font-semibold hover:underline" onclick="clearFavorites()">Vaciar Todo</button>
+                </div>
+
+                <div id="favorites-list">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <div id="empty-favorites" class="hidden text-center py-10 px-4">
+                    <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-2 text-slate-400">
+                        <i class="fa-regular fa-bookmark text-lg"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-700 mb-1">No tienes guardados</h4>
+                    <p class="text-[11px] text-slate-500 mb-3">Haz clic en el icono de marcador en cualquier tarjeta para guardarla.</p>
+                    <button class="btn-outline text-xs mx-auto" onclick="navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar')">Ir a Explorar</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="nav-bar h-[56px] bg-white border-t border-slate-200 flex justify-around items-center px-1 z-20">
+            <button id="nav-inicio" class="nav-item active flex flex-col items-center justify-center w-full py-1 text-emerald-800 font-bold transition" onclick="navigateTo('screen-inicio', 'P-01: Inicio', 'nav-inicio')">
+                <i class="fa-solid fa-house text-sm mb-0.5"></i>
+                <span class="text-[10px]">Inicio</span>
+            </button>
+            <button id="nav-explorar" class="nav-item flex flex-col items-center justify-center w-full py-1 text-slate-400 hover:text-emerald-800 transition" onclick="navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar')">
+                <i class="fa-solid fa-magnifying-glass text-sm mb-0.5"></i>
+                <span class="text-[10px]">Explorar</span>
+            </button>
+            <button id="nav-actividades" class="nav-item flex flex-col items-center justify-center w-full py-1 text-slate-400 hover:text-emerald-800 transition" onclick="navigateTo('screen-actividades', 'P-05: Actividades', 'nav-actividades')">
+                <i class="fa-solid fa-handshake text-sm mb-0.5"></i>
+                <span class="text-[10px]">Oportunidades</span>
+            </button>
+            <button id="nav-favoritos" class="nav-item flex flex-col items-center justify-center w-full py-1 text-slate-400 hover:text-emerald-800 transition" onclick="navigateTo('screen-favoritos', 'P-08: Guardados', 'nav-favoritos')">
+                <i class="fa-solid fa-bookmark text-sm mb-0.5"></i>
+                <span class="text-[10px]">Guardados</span>
+            </button>
+        </div>
+
+        <!-- Toast Popup -->
+        <div id="toast">
+            <i class="fa-solid fa-circle-info text-emerald-400"></i>
+            <span id="toast-message">Mensaje</span>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Store matching Entities defined in the prompt:
+        // AreaTematica, Organizacion, Integrante, Proyecto, CapacidadID, Publicacion, Actividad
+
+        const areasData = [
+            { id_area: "area-1", nombre: "Estructuras y Sísmica", descripcion: "Ingeniería estructural, edificación en altura y uniones de gran escala." },
+            { id_area: "area-2", nombre: "Sustentabilidad y Aislamiento", descripcion: "Eficiencia energética, huella de carbono y biomateriales térmicos." },
+            { id_area: "area-3", nombre: "I+D Materiales & Resinas", descripcion: "Adhesivos bio-basados, lignina y física de la madera." },
+            { id_area: "area-4", nombre: "Ensayos & Laboratorios", descripcion: "Caracterización mecánica normada e inspección no destructiva." }
+        ];
+
+        const organizacionesData = [
+            { id_organizacion: "org-uc", nombre: "Pontificia Universidad Católica de Chile", tipo: "Universidad", descripcion: "Facultades de Ingeniería y Arquitectura UC" },
+            { id_organizacion: "org-arauco", nombre: "Arauco Soluciones", tipo: "Empresa", descripcion: "Socio industrial en desarrollo forestal" },
+            { id_organizacion: "org-cmpc", nombre: "CMPC Madera", tipo: "Empresa", descripcion: "Proveedor de materia prima y manufactura" },
+            { id_organizacion: "org-mop", nombre: "Ministerio de Obras Públicas (MOP)", tipo: "Gobierno", descripcion: "Vínculo en infraestructura pública" }
+        ];
+
+        const integrantesData = [
+            { id_integrante: "int-1", nombre: "Dr. Alejandro Miranda", rol: "Director de Investigación", especialidad: "Ingeniería Estructural & CLT", id_organizacion: "org-uc" },
+            { id_integrante: "int-2", nombre: "Dra. Sofía Valenzuela", rol: "Investigadora Senior", especialidad: "Modelación FEA & Sísmica", id_organizacion: "org-uc" },
+            { id_integrante: "int-3", nombre: "Dra. María Teresa Rodríguez", rol: "Especialista en Biomateriales", especialidad: "Aislamiento Térmico Vegetal", id_organizacion: "org-uc" },
+            { id_integrante: "int-4", nombre: "Ing. Carlos Sepúlveda", rol: "Químico de Polímeros", especialidad: "Ligninas y Resinas Orgánicas", id_organizacion: "org-uc" },
+            { id_integrante: "int-5", nombre: "Arq. Tomás Silva", rol: "Coordinador de Prefabricación", especialidad: "Industrialización Habitable", id_organizacion: "org-uc" }
+        ];
+
+        const proyectosData = [
+            {
+                id_proyecto: "PROJ-01",
+                tipo_entidad: "proyecto",
+                titulo: "Edificio Híbrido Madera-Hormigón en CLT",
+                descripcion: "Validación de la respuesta estructural de elementos de Pino Radiata bajo carga sísmica severa en mesa vibradora.",
+                anio: "2025",
+                estado: "En Ejecución",
+                id_area: "area-1",
+                integrantes_ids: ["int-1", "int-2"],
+                capacidades_ids: ["cap-1"],
+                publicaciones_ids: ["pub-1"],
+                organizacion_id: "org-arauco"
+            },
+            {
+                id_proyecto: "PROJ-02",
+                tipo_entidad: "proyecto",
+                titulo: "Paneles Bioclimáticos de Fibra y Corteza",
+                descripcion: "Desarrollo de aislante térmico de huella de carbono negativa utilizando subproductos de la industria forestal.",
+                anio: "2024",
+                estado: "Prototipado TRL 5",
+                id_area: "area-2",
+                integrantes_ids: ["int-3"],
+                capacidades_ids: ["cap-2"],
+                publicaciones_ids: ["pub-2"],
+                organizacion_id: "org-cmpc"
+            },
+            {
+                id_proyecto: "PROJ-03",
+                tipo_entidad: "proyecto",
+                titulo: "Adhesivos Estructurales de Lignina Modificada",
+                descripcion: "Sustitución de resinas sintéticas por biomoléculas para reducir emisiones de formaldehído en Glulam.",
+                anio: "2026",
+                estado: "Fase Laboratorio",
+                id_area: "area-3",
+                integrantes_ids: ["int-4"],
+                capacidades_ids: ["cap-3"],
+                publicaciones_ids: ["pub-3"],
+                organizacion_id: "org-uc"
+            }
+        ];
+
+        const capacidadesData = [
+            {
+                id_capacidad: "cap-1",
+                tipo_entidad: "capacidad",
+                nombre: "Prensa Hidráulica Servo-Controlada 500T",
+                descripcion: "Ensayos de flexión y compresión a escala real en elementos laminados y paneles de gran formato.",
+                anio: "2025",
+                id_area: "area-4",
+                integrantes_ids: ["int-1"],
+                proyectos_ids: ["PROJ-01"],
+                norma: "NCh1198 / ASTM E72"
+            },
+            {
+                id_capacidad: "cap-2",
+                tipo_entidad: "capacidad",
+                nombre: "Cámara Climática Doble de Ensayos Térmicos",
+                descripcion: "Medición de permeabilidad, transmitancia térmica (Valor U) y simulación de ciclos higrotérmicos extremo.",
+                anio: "2024",
+                id_area: "area-2",
+                integrantes_ids: ["int-3"],
+                proyectos_ids: ["PROJ-02"],
+                norma: "ISO 8302"
+            },
+            {
+                id_capacidad: "cap-3",
+                tipo_entidad: "capacidad",
+                nombre: "Escáner Ultrasónico Portátil Arbotom",
+                descripcion: "Evaluación no destructiva de integridad estructural y salud interna en puentes e infraestructura existente.",
+                anio: "2024",
+                id_area: "area-4",
+                integrantes_ids: ["int-1", "int-2"],
+                proyectos_ids: [],
+                norma: "Peritaje MOP"
+            }
+        ];
+
+        const publicacionesData = [
+            {
+                id_publicacion: "pub-1",
+                tipo_entidad: "publicacion",
+                titulo: "Respuesta Sísmica de Uniones Disipativas en CLT",
+                anio: "2025",
+                tipo: "Revista Indexada WoS",
+                resumen: "Análisis numérico y experimental del desempeño de conexiones metálicas con deformación controlada en muros CLT.",
+                id_area: "area-1",
+                integrantes_ids: ["int-1", "int-2"],
+                proyecto_asociado: "PROJ-01"
+            },
+            {
+                id_publicacion: "pub-2",
+                tipo_entidad: "publicacion",
+                titulo: "Comportamiento Higrotérmico de Aislantes de Fibra Vegetal",
+                anio: "2024",
+                tipo: "Journal of Green Building",
+                resumen: "Evaluación en cámara de clima acelerado del comportamiento de paneles de residuos forestales expuestos a zona centro-sur.",
+                id_area: "area-2",
+                integrantes_ids: ["int-3"],
+                proyecto_asociado: "PROJ-02"
+            },
+            {
+                id_publicacion: "pub-3",
+                tipo_entidad: "publicacion",
+                titulo: "Síntesis de Resinas Bio-Basadas para Vigas Laminadas",
+                anio: "2026",
+                tipo: "Conferencia Internacional I+D",
+                resumen: "Avances en la purificación de lignina kraft para formulación de adhesivos de uso exterior.",
+                id_area: "area-3",
+                integrantes_ids: ["int-4"],
+                proyecto_asociado: "PROJ-03"
+            }
+        ];
+
+        const actividadesData = [
+            {
+                id_actividad: "act-1",
+                tipo_entidad: "actividad",
+                titulo: "Seminario Internacional: Diseño Sísmico en Madera",
+                tipo: "evento",
+                fecha: "15 Octubre 2026",
+                descripcion: "Jornada técnica con expertos de Nueva Zelanda y Chile sobre normativa y diseño de uniones en edificación.",
+                id_area: "area-1",
+                audiencia: "Empresas e Investigadores"
+            },
+            {
+                id_actividad: "act-2",
+                tipo_entidad: "actividad",
+                titulo: "Curso de Inspección Estructural por Ultrasonido",
+                tipo: "formacion",
+                fecha: "05 Noviembre 2026",
+                descripcion: "Capacitación en el uso de herramientas no destructivas para diagnóstico de estructuras históricas.",
+                id_area: "area-4",
+                audiencia: "Ingenieros e Inspectores MOP"
+            },
+            {
+                id_actividad: "act-3",
+                tipo_entidad: "actividad",
+                titulo: "Convocatoria Colaboración I+D Madera Industrializada",
+                tipo: "oportunidad",
+                fecha: "Abierta 2026",
+                descripcion: "Buscamos contrapartes industriales para prototipar módulos prefabricados de vivienda de alto estándar.",
+                id_area: "area-2",
+                audiencia: "Empresas Constructoras"
+            }
+        ];
+
+        let currentScreen = 'screen-inicio';
+        let navigationStack = ['screen-inicio'];
+        let favorites = [];
+        let userRole = 'empresa'; // 'empresa' or 'investigador'
+        let currentSearchQuery = '';
+        let activeTypeFilter = 'todos';
+        let activeAreaFilter = 'todas';
+        let activeYearFilter = 'todos';
+        let referredEntityForForm = { id: 'REF-GENERAL', title: 'Contacto General CIM UC' };
+
+        // Role Switcher Logic
+        function setUserRole(role) {
+            userRole = role;
+            const btnEmpresa = document.getElementById('role-btn-empresa');
+            const btnInvestigador = document.getElementById('role-btn-investigador');
+            const badge = document.getElementById('hero-role-badge');
+            const calloutTitle = document.getElementById('role-callout-title');
+            const calloutDesc = document.getElementById('role-callout-desc');
+            const spotlightTitle = document.getElementById('spotlight-title');
+
+            if (role === 'empresa') {
+                btnEmpresa.className = 'px-2 py-0.5 rounded font-semibold bg-emerald-600 text-white transition';
+                btnInvestigador.className = 'px-2 py-0.5 rounded font-semibold text-emerald-100 hover:text-white transition';
+                badge.innerText = 'Vista Empresa';
+                calloutTitle.innerText = 'Modo Empresa / Industria';
+                calloutDesc.innerText = 'Priorizando capacidades de laboratorio, ensayos normados y transferencia tecnológica para soluciones comerciales.';
+                spotlightTitle.innerText = 'Servicios de Certificación CLT y Ensayos 500T';
+                showToast('Perfil cambiado a: Empresa / Industria');
+            } else {
+                btnInvestigador.className = 'px-2 py-0.5 rounded font-semibold bg-emerald-600 text-white transition';
+                btnEmpresa.className = 'px-2 py-0.5 rounded font-semibold text-emerald-100 hover:text-white transition';
+                badge.innerText = 'Vista Investigador';
+                calloutTitle.innerText = 'Modo Investigador / Universidad';
+                calloutDesc.innerText = 'Priorizando proyectos Fondef/Anid, publicaciones WoS e interacción entre equipos académicos.';
+                spotlightTitle.innerText = 'Convocatoria Proyectos I+D Conjuntos 2026';
+                showToast('Perfil cambiado a: Investigador / Universidad');
+            }
+
+            renderProjectsCatalog();
+        }
+
+        // Navigation Engine
+        function navigateTo(screenId, title, navId) {
+            if (currentScreen === screenId) return;
+
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.add('active');
+                target.scrollTop = 0;
+            }
+
+            navigationStack.push(screenId);
+            currentScreen = screenId;
+
+            // Back button handling
+            const backBtn = document.getElementById('back-btn');
+            if (navigationStack.length > 1) {
+                backBtn.classList.remove('hidden');
+            } else {
+                backBtn.classList.add('hidden');
+            }
+
+            if (title) document.getElementById('header-title').innerText = title;
+
+            // Nav Bar state
+            if (navId) {
+                document.querySelectorAll('.nav-item').forEach(n => {
+                    n.classList.remove('text-emerald-800', 'font-bold');
+                    n.classList.add('text-slate-400');
+                });
+                const activeNav = document.getElementById(navId);
+                if (activeNav) {
+                    activeNav.classList.remove('text-slate-400');
+                    activeNav.classList.add('text-emerald-800', 'font-bold');
+                }
+            }
+        }
+
+        function goBack() {
+            if (navigationStack.length <= 1) return;
+
+            navigationStack.pop();
+            const prevScreen = navigationStack[navigationStack.length - 1];
+
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(prevScreen).classList.add('active');
+            currentScreen = prevScreen;
+
+            if (navigationStack.length <= 1) {
+                document.getElementById('back-btn').classList.add('hidden');
+            }
+
+            // Update title based on active screen
+            const titles = {
+                'screen-inicio': 'P-01: Inicio',
+                'screen-explorar': 'P-02: Explorar',
+                'screen-detalle': 'P-03: Detalle de Proyecto',
+                'screen-relacionados': 'P-04: Contenidos Relacionados',
+                'screen-actividades': 'P-05: Actividades',
+                'screen-formulario': 'P-06: Formulario Contacto',
+                'screen-confirmacion': 'P-07: Confirmación',
+                'screen-favoritos': 'P-08: Guardados'
+            };
+            document.getElementById('header-title').innerText = titles[prevScreen] || 'CIM UC Explorer';
+        }
+
+        // Combine all items into a unified list for P-02 Explorar
+        function getAllSearchableItems() {
+            let items = [];
+
+            proyectosData.forEach(p => {
+                const area = areasData.find(a => a.id_area === p.id_area);
+                items.push({
+                    id: p.id_proyecto,
+                    type: 'proyecto',
+                    typeLabel: 'Proyecto I+D',
+                    badgeClass: 'bg-emerald-100 text-emerald-800',
+                    title: p.titulo,
+                    desc: p.descripcion,
+                    anio: p.anio,
+                    status: p.estado,
+                    id_area: p.id_area,
+                    areaName: area ? area.nombre : '',
+                    rawObj: p
+                });
+            });
+
+            capacidadesData.forEach(c => {
+                const area = areasData.find(a => a.id_area === c.id_area);
+                items.push({
+                    id: c.id_capacidad,
+                    type: 'capacidad',
+                    typeLabel: 'Capacidad I+D',
+                    badgeClass: 'bg-purple-100 text-purple-800',
+                    title: c.nombre,
+                    desc: c.descripcion,
+                    anio: c.anio,
+                    status: c.norma,
+                    id_area: c.id_area,
+                    areaName: area ? area.nombre : '',
+                    rawObj: c
+                });
+            });
+
+            publicacionesData.forEach(pub => {
+                const area = areasData.find(a => a.id_area === pub.id_area);
+                items.push({
+                    id: pub.id_publicacion,
+                    type: 'publicacion',
+                    typeLabel: 'Publicación',
+                    badgeClass: 'bg-blue-100 text-blue-800',
+                    title: pub.titulo,
+                    desc: pub.resumen,
+                    anio: pub.anio,
+                    status: pub.tipo,
+                    id_area: pub.id_area,
+                    areaName: area ? area.nombre : '',
+                    rawObj: pub
+                });
+            });
+
+            actividadesData.forEach(act => {
+                const area = areasData.find(a => a.id_area === act.id_area);
+                items.push({
+                    id: act.id_actividad,
+                    type: 'actividad',
+                    typeLabel: 'Actividad / Oportunidad',
+                    badgeClass: 'bg-amber-100 text-amber-800',
+                    title: act.titulo,
+                    desc: act.descripcion,
+                    anio: '2026',
+                    status: act.fecha,
+                    id_area: act.id_area,
+                    areaName: area ? area.nombre : '',
+                    rawObj: act
+                });
+            });
+
+            return items;
+        }
+
+        function renderProjectsCatalog() {
+            const container = document.getElementById('cards-list');
+            const emptyState = document.getElementById('empty-state');
+            if (!container) return;
+
+            container.innerHTML = '';
+            const allItems = getAllSearchableItems();
+
+            const filtered = allItems.filter(item => {
+                // Type Filter
+                const matchesType = (activeTypeFilter === 'todos') || (item.type === activeTypeFilter);
+                
+                // Area Filter
+                const matchesArea = (activeAreaFilter === 'todas') || (item.id_area === activeAreaFilter);
+
+                // Year Filter
+                const matchesYear = (activeYearFilter === 'todos') || (item.anio === activeYearFilter);
+
+                // Text Search Query
+                const q = currentSearchQuery.toLowerCase();
+                const matchesText = !q || 
+                    item.title.toLowerCase().includes(q) || 
+                    item.desc.toLowerCase().includes(q) ||
+                    item.areaName.toLowerCase().includes(q) ||
+                    item.typeLabel.toLowerCase().includes(q);
+
+                return matchesType && matchesArea && matchesYear && matchesText;
+            });
+
+            document.getElementById('results-count').innerText = `Mostrando ${filtered.length} elemento(s)`;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(item => {
+                const isFav = favorites.includes(item.id);
+                const card = document.createElement('div');
+                card.className = 'card-item';
+                card.onclick = () => openDetailView(item.id, item.type);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="badge-tag ${item.badgeClass}">${item.typeLabel}</span>
+                            <span class="text-[9px] text-slate-400 font-mono">${item.id}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleFavorite('${item.id}')" class="text-slate-300 hover:text-amber-500 transition p-1">
+                            <i class="${isFav ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'}"></i>
+                        </button>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-800 mb-1 leading-snug">${item.title}</h3>
+                    <p class="text-[11px] text-slate-500 leading-normal mb-2 line-clamp-2">${item.desc}</p>
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 font-medium pt-2 border-t border-slate-100">
+                        <span><i class="fa-regular fa-calendar-check mr-1"></i>${item.anio} • ${item.areaName}</span>
+                        <span class="text-emerald-700 font-semibold flex items-center gap-1">Ver Detalle <i class="fa-solid fa-chevron-right text-[8px]"></i></span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // P-03: Detalle de Proyecto / Contenido
+        function openDetailView(id, type) {
+            const detailContainer = document.getElementById('detail-content');
+            const isFav = favorites.includes(id);
+
+            let itemObj = null;
+            let typeTitle = 'Detalle de Contenido';
+
+            if (type === 'proyecto') {
+                itemObj = proyectosData.find(p => p.id_proyecto === id);
+                typeTitle = 'P-03: Detalle de Proyecto';
+            } else if (type === 'capacidad') {
+                itemObj = capacidadesData.find(c => c.id_capacidad === id);
+                typeTitle = 'P-03: Detalle de Capacidad I+D';
+            } else if (type === 'publicacion') {
+                itemObj = publicacionesData.find(pub => pub.id_publicacion === id);
+                typeTitle = 'P-03: Detalle de Publicación';
+            } else if (type === 'actividad') {
+                itemObj = actividadesData.find(a => a.id_actividad === id);
+                typeTitle = 'P-03: Detalle de Actividad';
+            }
+
+            if (!itemObj) return;
+
+            const areaObj = areasData.find(a => a.id_area === itemObj.id_area);
+            referredEntityForForm = { id: id, title: itemObj.titulo || itemObj.nombre };
+
+            detailContainer.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="badge-tag bg-emerald-100 text-emerald-800 mb-1">${type.toUpperCase()} • ${id}</span>
+                        <span class="block text-[10px] text-slate-400 font-medium">${areaObj ? areaObj.nombre : ''}</span>
+                    </div>
+                    <button onclick="toggleFavorite('${id}')" class="text-slate-400 hover:text-amber-500 transition text-xs font-semibold flex items-center gap-1">
+                        <i class="${isFav ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark'}"></i> ${isFav ? 'Guardado' : 'Guardar'}
+                    </button>
+                </div>
+
+                <h2 class="text-sm font-bold text-slate-800 mb-2 leading-tight">${itemObj.titulo || itemObj.nombre}</h2>
+                
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-600 mb-3 bg-slate-100 p-2 rounded-lg">
+                    <div><strong class="text-slate-800">Año / Período:</strong> ${itemObj.anio || '2026'}</div>
+                    <div><strong class="text-slate-800">Estado / Tipo:</strong> ${itemObj.estado || itemObj.tipo || itemObj.norma || 'Activo'}</div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Descripción</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">${itemObj.descripcion || itemObj.resumen}</p>
+                </div>
+
+                <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-xl p-3 mb-4 space-y-1 text-xs">
+                    <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">Impacto & Valor para ${userRole === 'empresa' ? 'la Industria' : 'la Academia'}</h4>
+                    <p class="text-[11px] text-emerald-800">
+                        ${userRole === 'empresa' 
+                            ? 'Permite validar la factibilidad técnica y acelerar la homologación normativa para proyectos de construcción industrializada.' 
+                            : 'Genera conocimiento científico transferible, publicaciones en revistas de alto impacto e insumos para tesis de postgrado UC.'}
+                    </p>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <button class="btn-outline w-full text-xs" onclick="openRelatedView('${id}', '${type}')">
+                        <i class="fa-solid fa-diagram-project"></i> Ver Contenidos Relacionados (P-04)
+                    </button>
+                    <button class="btn-primary w-full text-xs" onclick="openContactForm('${id}', '${(itemObj.titulo || itemObj.nombre).replace(/'/g, "\\'")}')">
+                        <i class="fa-solid fa-handshake"></i> Solicitar Información / Colaborar (P-06)
+                    </button>
+                </div>
+            `;
+
+            navigateTo('screen-detalle', typeTitle, 'nav-explorar');
+        }
+
+        // P-04: Contenidos Relacionados (Relaciones Muchos a Muchos)
+        function openRelatedView(id, type) {
+            const container = document.getElementById('related-content');
+            
+            let mainTitle = '';
+            let relatedIntegrantes = [];
+            let relatedCapacidades = [];
+            let relatedPublicaciones = [];
+            let mainOrg = null;
+
+            if (type === 'proyecto') {
+                const proj = proyectosData.find(p => p.id_proyecto === id);
+                if (proj) {
+                    mainTitle = proj.titulo;
+                    relatedIntegrantes = integrantesData.filter(i => proj.integrantes_ids.includes(i.id_integrante));
+                    relatedCapacidades = capacidadesData.filter(c => proj.capacidades_ids.includes(c.id_capacidad));
+                    relatedPublicaciones = publicacionesData.filter(pub => proj.publicaciones_ids.includes(pub.id_publicacion));
+                    mainOrg = organizacionesData.find(o => o.id_organizacion === proj.organizacion_id);
+                }
+            } else {
+                // Generic related fallback
+                mainTitle = 'Contenido ID ' + id;
+                relatedIntegrantes = integrantesData.slice(0, 2);
+                relatedCapacidades = capacidadesData.slice(0, 1);
+                relatedPublicaciones = publicacionesData.slice(0, 1);
+            }
+
+            let integrantesHTML = relatedIntegrantes.map(i => `
+                <div class="card-item p-2.5 mb-2 flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-bold">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">${i.nombre}</h4>
+                        <p class="text-[10px] text-slate-500">${i.rol} • ${i.especialidad}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            let capacidadesHTML = relatedCapacidades.map(c => `
+                <div class="card-item p-2.5 mb-2 cursor-pointer hover:border-purple-300" onclick="openDetailView('${c.id_capacidad}', 'capacidad')">
+                    <span class="badge-tag bg-purple-100 text-purple-800 mb-1">Capacidad I+D</span>
+                    <h4 class="text-xs font-bold text-slate-800">${c.nombre}</h4>
+                    <p class="text-[10px] text-slate-500">${c.descripcion}</p>
+                </div>
+            `).join('');
+
+            let publicacionesHTML = relatedPublicaciones.map(pub => `
+                <div class="card-item p-2.5 mb-2 cursor-pointer hover:border-blue-300" onclick="openDetailView('${pub.id_publicacion}', 'publicacion')">
+                    <span class="badge-tag bg-blue-100 text-blue-800 mb-1">Publicación</span>
+                    <h4 class="text-xs font-bold text-slate-800">${pub.titulo}</h4>
+                    <p class="text-[10px] text-slate-500">${pub.tipo} (${pub.anio})</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="mb-3">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block">P-04: Grafo de Relaciones:</span>
+                    <h3 class="text-xs font-bold text-emerald-800 leading-tight mb-2">${mainTitle}</h3>
+                    <p class="text-[10px] text-slate-500">Muestra las entidades vinculadas (Integrantes, Capacidades, Publicaciones y Organización).</p>
+                </div>
+
+                ${mainOrg ? `
+                <div class="mb-3">
+                    <h4 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1"><i class="fa-solid fa-building text-slate-500 mr-1"></i>Organización Asociada</h4>
+                    <div class="card-item p-2.5 bg-slate-100/80 border-slate-200">
+                        <h5 class="text-xs font-bold text-slate-800">${mainOrg.nombre}</h5>
+                        <p class="text-[10px] text-slate-500">${mainOrg.tipo} • ${mainOrg.descripcion}</p>
+                    </div>
+                </div>` : ''}
+
+                <div class="mb-3">
+                    <h4 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-users text-emerald-700 mr-1"></i>Integrantes del Equipo</h4>
+                    ${integrantesHTML || '<p class="text-xs text-slate-400">Sin integrantes asociados</p>'}
+                </div>
+
+                <div class="mb-3">
+                    <h4 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-microscope text-purple-700 mr-1"></i>Capacidades I+D Utilizadas</h4>
+                    ${capacidadesHTML || '<p class="text-xs text-slate-400">Sin capacidades asociadas</p>'}
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-book text-blue-700 mr-1"></i>Publicaciones Resultantes</h4>
+                    ${publicacionesHTML || '<p class="text-xs text-slate-400">Sin publicaciones asociadas</p>'}
+                </div>
+
+                <button class="btn-primary w-full text-xs" onclick="openContactForm('${id}', '${mainTitle.replace(/'/g, "\\'")}')">
+                    <i class="fa-solid fa-paper-plane"></i> Contactar sobre este Contenido
+                </button>
+            `;
+
+            navigateTo('screen-relacionados', 'P-04: Contenidos Relacionados', 'nav-explorar');
+        }
+
+        // P-05: Activities Filter & Render
+        function filterActivities(chipElem, filterType) {
+            document.querySelectorAll('#screen-actividades .chip-filter').forEach(c => c.classList.remove('active'));
+            chipElem.classList.add('active');
+
+            const listContainer = document.getElementById('activities-list');
+            listContainer.innerHTML = '';
+
+            const filtered = actividadesData.filter(a => filterType === 'todas' || a.tipo === filterType);
+
+            filtered.forEach(act => {
+                const card = document.createElement('div');
+                card.className = 'card-item';
+                card.onclick = () => openDetailView(act.id_actividad, 'actividad');
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="badge-tag bg-amber-100 text-amber-800">${act.tipo.toUpperCase()}</span>
+                        <span class="text-[10px] text-emerald-700 font-bold">${act.fecha}</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800 mb-1">${act.titulo}</h4>
+                    <p class="text-[11px] text-slate-500 mb-2">${act.descripcion}</p>
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1.5 border-t border-slate-100">
+                        <span>Audiencia: ${act.audiencia}</span>
+                        <span class="text-emerald-700 font-semibold" onclick="event.stopPropagation(); openContactForm('${act.id_actividad}', '${act.titulo.replace(/'/g, "\\'")}')">Inscribir / Consultar <i class="fa-solid fa-arrow-right text-[8px]"></i></span>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // P-06: Form Opener
+        function openContactForm(referredId, referredTitle) {
+            referredEntityForForm = { id: referredId, title: referredTitle };
+            document.getElementById('form-referred-id').value = referredId;
+            document.getElementById('form-referred-title').innerText = `${referredTitle} (${referredId})`;
+            navigateTo('screen-formulario', 'P-06: Formulario Contacto', 'nav-actividades');
+        }
+
+        // P-06 -> P-07 Submit Handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('form-name').value;
+            const email = document.getElementById('form-email').value;
+            const topic = document.getElementById('form-topic').value;
+            const randomCode = '#SOL-2026-' + Math.floor(1000 + Math.random() * 9000);
+            
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('es-CL');
+
+            document.getElementById('receipt-id').innerText = randomCode;
+            document.getElementById('receipt-name').innerText = name;
+            document.getElementById('receipt-email').innerText = email;
+            document.getElementById('receipt-date').innerText = dateStr;
+            document.getElementById('receipt-ref').innerText = referredEntityForForm.id + ' - ' + referredEntityForForm.title;
+
+            document.getElementById('contact-form').reset();
+            navigateTo('screen-confirmacion', 'P-07: Confirmación', 'nav-actividades');
+            showToast('Solicitud enviada correctamente');
+        }
+
+        // Filter Utilities for P-02
+        function setTypeFilter(chipElem, type) {
+            document.querySelectorAll('#type-chips .chip-filter').forEach(c => c.classList.remove('active'));
+            chipElem.classList.add('active');
+            activeTypeFilter = type;
+            renderProjectsCatalog();
+        }
+
+        function handleAreaFilter(val) {
+            activeAreaFilter = val;
+            renderProjectsCatalog();
+        }
+
+        function handleYearFilter(val) {
+            activeYearFilter = val;
+            renderProjectsCatalog();
+        }
+
+        function handleSearch(val) {
+            currentSearchQuery = val;
+            const clearBtn = document.getElementById('clear-search');
+            if (val.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+            renderProjectsCatalog();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            currentSearchQuery = '';
+            document.getElementById('clear-search').classList.add('hidden');
+            renderProjectsCatalog();
+        }
+
+        function resetFilters() {
+            activeTypeFilter = 'todos';
+            activeAreaFilter = 'todas';
+            activeYearFilter = 'todos';
+            currentSearchQuery = '';
+
+            document.getElementById('search-input').value = '';
+            document.getElementById('area-select').value = 'todas';
+            document.getElementById('year-select').value = 'todos';
+            document.getElementById('clear-search').classList.add('hidden');
+
+            document.querySelectorAll('#type-chips .chip-filter').forEach((c, idx) => {
+                if (idx === 0) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+
+            renderProjectsCatalog();
+            showToast('Filtros restablecidos');
+        }
+
+        function filterByAreaAndNavigate(areaId) {
+            activeAreaFilter = areaId;
+            document.getElementById('area-select').value = areaId;
+            renderProjectsCatalog();
+            navigateTo('screen-explorar', 'P-02: Explorar', 'nav-explorar');
+        }
+
+        // Favorites Manager
+        function toggleFavorite(id) {
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showToast('Eliminado de guardados');
+            } else {
+                favorites.push(id);
+                showToast('Guardado en favoritos');
+            }
+            updateFavCount();
+            renderProjectsCatalog();
+            renderFavorites();
+        }
+
+        function updateFavCount() {
+            const countElem = document.getElementById('fav-count');
+            if (favorites.length > 0) {
+                countElem.innerText = favorites.length;
+                countElem.classList.remove('hidden');
+            } else {
+                countElem.classList.add('hidden');
+            }
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favorites-list');
+            const emptyFav = document.getElementById('empty-favorites');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (favorites.length === 0) {
+                emptyFav.classList.remove('hidden');
+                return;
+            } else {
+                emptyFav.classList.add('hidden');
+            }
+
+            const allItems = getAllSearchableItems();
+
+            favorites.forEach(favId => {
+                const item = allItems.find(i => i.id === favId);
+                if (!item) return;
+
+                const card = document.createElement('div');
+                card.className = 'card-item';
+                card.onclick = () => openDetailView(item.id, item.type);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="badge-tag ${item.badgeClass}">${item.typeLabel}</span>
+                        <button onclick="event.stopPropagation(); toggleFavorite('${item.id}')" class="text-amber-500 p-1">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800 mb-1">${item.title}</h4>
+                    <p class="text-[11px] text-slate-500 line-clamp-2">${item.desc}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function clearFavorites() {
+            favorites = [];
+            updateFavCount();
+            renderFavorites();
+            renderProjectsCatalog();
+            showToast('Favoritos vaciados');
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
+
+        // Expanded Frame Toggle
+        function toggleFrameSize() {
+            const frame = document.getElementById('phone-frame');
+            const icon = document.getElementById('expand-icon');
+            const text = document.getElementById('expand-text');
+
+            frame.classList.toggle('fullscreen-mode');
+            if (frame.classList.contains('fullscreen-mode')) {
+                icon.className = 'fa-solid fa-compress';
+                text.innerText = 'Vista Teléfono';
+            } else {
+                icon.className = 'fa-solid fa-expand';
+                text.innerText = 'Pantalla Completa';
+            }
+        }
+
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock-time').innerText = `${hours}:${minutes}`;
+        }
+
+        // Initialization
+        window.onload = function() {
+            updateClock();
+            setInterval(updateClock, 10000);
+            renderProjectsCatalog();
+            filterActivities(document.querySelector('#screen-actividades .chip-filter'), 'todas');
+            renderFavorites();
+        };
+    </script>
+</body>
+</html>
